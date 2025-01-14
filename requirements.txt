@@ -1,0 +1,9 @@
+numpy==1.23
+pandas==2.2.2
+scikit-learn==1.2.0
+matplotlib==3.10.0
+aeon
+tensorflow
+keras
+pycatch22==0.4.5
+fastdtw
