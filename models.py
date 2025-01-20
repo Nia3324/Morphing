@@ -63,23 +63,16 @@ def compute_catch22_features(X) -> pd.DataFrame:
 
 class Models:
     def __init__(self, model_name : str, 
-                 X_train : np.array, y_train : np.array, 
-                 X_test : np.array, y_test : np.array) -> None:
+                 X_train : np.array, y_train : np.array) -> None:
 
         if model_name not in ['lstm', 'catch22', 'rocket']:
             raise ValueError("Invalid model name. Choose from ['lstm', 'catch22', 'rocket']")
         self.model_name = model_name
         self.X_train = X_train
         self.y_train = y_train
-        self.X_test = X_test
-        self.y_test = y_test
 
         self.model = None
-        self.y_pred = None
-        self.y_proba = None
-        self.accuracy = None
         self.catch22_train = None
-        self.catch22_test = None
         self.rocket_kernels = None
         return
 
@@ -109,7 +102,6 @@ class Models:
     # Random Forest w/ Catch22 Features =======================================================
     def train_catch22(self) -> None:
         self.catch22_train = compute_catch22_features(self.X_train)
-        self.catch22_test = compute_catch22_features(self.X_test)
 
         self.model = RandomForestClassifier()
         self.model.fit(self.catch22_train, self.y_train)
@@ -127,20 +119,20 @@ class Models:
         return
 
     # Predictions ==============================================================================
-    def predict(self, verbose=False):
+    def predict(self, X_test : np.array) -> tuple:
         if(self.model_name == 'lstm'):
-            self.y_proba = self.model.predict(self.X_test, verbose=0)
-            self.y_pred = np.where(self.y_proba > 0.5, 1, 0)
+            y_proba = self.model.predict(X_test, verbose=0)
+            y_pred = np.where(y_proba > 0.5, 1, 0)
+        
         elif(self.model_name == 'catch22'):
-            self.y_pred = self.model.predict(self.catch22_test)
-            self.y_proba = self.model.predict_proba(self.catch22_test)
+            catch22_test = compute_catch22_features(X_test)
+            y_pred = self.model.predict(catch22_test)
+            y_proba = self.model.predict_proba(catch22_test)
+        
         elif(self.model_name == 'rocket'): 
-            X_test = np.squeeze(self.X_test, axis=1) if len(self.X_test.shape) == 3 and self.X_test.shape[1] == 1 else self.X_test
+            X_test = np.squeeze(X_test, axis=1) if len(X_test.shape) == 3 and X_test.shape[1] == 1 else X_test
             X_test_transform = apply_kernels(X_test, self.rocket_kernels)
-            self.y_pred = self.model.predict(X_test_transform)
-            self.y_proba = self.model.decision_function(X_test_transform)
+            y_pred = self.model.predict(X_test_transform)
+            y_proba = self.model.decision_function(X_test_transform)
 
-        self.accuracy = accuracy_score(self.y_test, self.y_pred)
-        if verbose:
-            print(f"{self.model_name} Model Accuracy: {self.accuracy}")
-        return self.y_pred, self.y_proba, self.accuracy
+        return y_pred, y_proba

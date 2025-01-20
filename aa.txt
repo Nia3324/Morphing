@@ -1,0 +1,31 @@
+Pair-Wise Results:
+Pair: (4, 5) -> Morphing percentage: 0.6900000000000001
+Pair: (2, 17) -> Morphing percentage: 0.45
+Pair: (2, 31) -> Morphing percentage: 0.5700000000000001
+Pair: (6, 14) -> Morphing percentage: 0.73
+Pair: (2, 18) -> Morphing percentage: 0.59
+Pair: (2, 8) -> Morphing percentage: 0.65
+Pair: (2, 14) -> Morphing percentage: 0.63
+Pair: (2, 13) -> Morphing percentage: 0.45
+Pair: (4, 14) -> Morphing percentage: 0.66
+Pair: (4, 17) -> Morphing percentage: 0.52
+Pair: (0, 17) -> Morphing percentage: 0.74
+Pair: (2, 1) -> Morphing percentage: 0.5700000000000001
+Pair: (6, 17) -> Morphing percentage: 0.56
+Pair: (2, 20) -> Morphing percentage: 0.68
+Pair: (7, 7) -> Morphing percentage: 0.61
+Pair: (5, 19) -> Morphing percentage: 0.64
+Pair: (0, 14) -> Morphing percentage: 0.7000000000000001
+Pair: (1, 5) -> Morphing percentage: 0.78
+Pair: (6, 5) -> Morphing percentage: 0.74
+Pair: (2, 27) -> Morphing percentage: 0.5
+Pair: (6, 31) -> Morphing percentage: 0.64
+Pair: (2, 6) -> Morphing percentage: 0.62
+Pair: (0, 20) -> Morphing percentage: 0.8200000000000001
+Pair: (2, 26) -> Morphing percentage: 0.44
+24
+-------------------------------------------------
+Mean morphing percentage: 0.62
+Standard deviation of morphing percentage: 0.10
+-------------------------------------------------
+Correctly Classified Pairs: 24/50
