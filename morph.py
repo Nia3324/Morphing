@@ -15,14 +15,6 @@ class Morph:
         self.class1_X = self.X[self.y == 1]
         self.distances = []
         self.borderline_pairs = None
-
-        # Pair-wise results
-        self.morphs = {}
-        self.preds = {}
-        self.results = {}
-
-        # Global metrics
-        self.metrics = {}
         return
     
     def get_DTWGlobalBorderline(self, n_samples : int) -> None:   
@@ -51,6 +43,11 @@ class Morph:
 
     def Binay_MorphingCalculater(self, model : Models, granularity=100, verbose=False) -> None:
         morphs_perc = []
+        morphs = {}
+        preds = {}
+        results = {}
+        metrics = {}
+
         acc_count = 0 # count correctly classified pairs
 
         if verbose:
@@ -86,36 +83,36 @@ class Morph:
                 perc = 1/granularity * change_idx
                 morphs_perc.append(perc)
 
-                self.morphs[pair[0]] = morph
-                self.preds[pair[0]] = pred
-                self.results[pair[0]] = round(perc, 2)
+                morphs[pair[0]] = morph
+                preds[pair[0]] = pred
+                results[pair[0]] = round(perc, 2)
                 if verbose:
                     print(f"Pair: {pair[0]} -> Morphing percentage: {perc:.2f}")
 
         # Calculate metrics only if morphs list is not empty
         if morphs_perc:
-            self.metrics['mean'] = float(np.mean(morphs_perc))
-            self.metrics['std'] = float(np.std(morphs_perc))
+            metrics['mean'] = float(np.mean(morphs_perc))
+            metrics['std'] = float(np.std(morphs_perc))
         else:
-            self.metrics['mean'] = 0.0
-            self.metrics['std'] = 0.0
+            metrics['mean'] = 0.0
+            metrics['std'] = 0.0
 
         if verbose:
             print("-------------------------------------------------")
-            print(f"Mean morphing percentage: {self.metrics['mean']:.2f}")
-            print(f"Standard deviation of morphing percentage: {self.metrics['std']:.2f}")
+            print(f"Mean morphing percentage: {metrics['mean']:.2f}")
+            print(f"Standard deviation of morphing percentage: {metrics['std']:.2f}")
             print("-------------------------------------------------")
             print(f"Correctly Classified Pairs: {acc_count}/{len(self.borderline_pairs)}")
         
-        return self.morphs, self.preds, self.results, self.metrics
+        return morphs, preds, results, metrics
     
 
-    def plot_morph(self, pair: tuple) -> None:
-        if pair not in self.morphs:
+    def plot_morph(self, pair: tuple, morphs, preds) -> None:
+        if pair not in morphs:
             print("Pair not found")
             return
         
-        morph = self.morphs[pair] # pandas DataFrame
+        morph = morphs[pair] # pandas DataFrame
 
         start_color = '#61E6AA'  
         end_color = '#5722B1'    
@@ -126,7 +123,7 @@ class Morph:
         # Plot intermediate morphed series
         for idx, column in enumerate(morph.columns):
             linew = 2 if idx==0 or idx==len(morph.columns)-1 else 1
-            color = start_color if self.preds[pair][idx] == 0 else end_color
+            color = start_color if preds[pair][idx] == 0 else end_color
             
             # Set label based on whether it's start, end, or intermediate series
             if idx == 0:
