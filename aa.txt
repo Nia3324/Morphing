@@ -1,31 +1,51 @@
-Pair-Wise Results:
-Pair: (4, 5) -> Morphing percentage: 0.6900000000000001
-Pair: (2, 17) -> Morphing percentage: 0.45
-Pair: (2, 31) -> Morphing percentage: 0.5700000000000001
-Pair: (6, 14) -> Morphing percentage: 0.73
-Pair: (2, 18) -> Morphing percentage: 0.59
-Pair: (2, 8) -> Morphing percentage: 0.65
-Pair: (2, 14) -> Morphing percentage: 0.63
-Pair: (2, 13) -> Morphing percentage: 0.45
-Pair: (4, 14) -> Morphing percentage: 0.66
-Pair: (4, 17) -> Morphing percentage: 0.52
-Pair: (0, 17) -> Morphing percentage: 0.74
-Pair: (2, 1) -> Morphing percentage: 0.5700000000000001
-Pair: (6, 17) -> Morphing percentage: 0.56
-Pair: (2, 20) -> Morphing percentage: 0.68
-Pair: (7, 7) -> Morphing percentage: 0.61
-Pair: (5, 19) -> Morphing percentage: 0.64
-Pair: (0, 14) -> Morphing percentage: 0.7000000000000001
-Pair: (1, 5) -> Morphing percentage: 0.78
-Pair: (6, 5) -> Morphing percentage: 0.74
-Pair: (2, 27) -> Morphing percentage: 0.5
-Pair: (6, 31) -> Morphing percentage: 0.64
-Pair: (2, 6) -> Morphing percentage: 0.62
-Pair: (0, 20) -> Morphing percentage: 0.8200000000000001
-Pair: (2, 26) -> Morphing percentage: 0.44
-24
--------------------------------------------------
-Mean morphing percentage: 0.62
-Standard deviation of morphing percentage: 0.10
--------------------------------------------------
-Correctly Classified Pairs: 24/50
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+File c:\Users\anton\anaconda3\envs\morph\lib\site-packages\pandas\core\indexes\base.py:3805, in Index.get_loc(self, key)
+   3804 try:
+-> 3805     return self._engine.get_loc(casted_key)
+   3806 except KeyError as err:
+
+File index.pyx:167, in pandas._libs.index.IndexEngine.get_loc()
+
+File index.pyx:196, in pandas._libs.index.IndexEngine.get_loc()
+
+File pandas\\_libs\\hashtable_class_helper.pxi:7081, in pandas._libs.hashtable.PyObjectHashTable.get_item()
+
+File pandas\\_libs\\hashtable_class_helper.pxi:7089, in pandas._libs.hashtable.PyObjectHashTable.get_item()
+
+KeyError: 0
+
+The above exception was the direct cause of the following exception:
+
+KeyError                                  Traceback (most recent call last)
+Cell In[46], line 1
+----> 1 test.plot_morph((4,5))
+
+Cell In[15], line 126, in Morph.plot_morph(self, pair)
+    123 plt.figure(figsize=(12, 6))
+    125 # Plot start and end series
+--> 126 plt.plot(morph.index, morph[0], color=start_color, label='Start Series', linewidth=2)
+    127 plt.plot(morph.index, morph[morph.columns[-1]], color=end_color, label='End Series', linewidth=2)
+    129 # Plot intermediate morphed series
+
+File c:\Users\anton\anaconda3\envs\morph\lib\site-packages\pandas\core\frame.py:4102, in DataFrame.__getitem__(self, key)
+   4100 if self.columns.nlevels > 1:
+   4101     return self._getitem_multilevel(key)
+-> 4102 indexer = self.columns.get_loc(key)
+   4103 if is_integer(indexer):
+   4104     indexer = [indexer]
+
+File c:\Users\anton\anaconda3\envs\morph\lib\site-packages\pandas\core\indexes\base.py:3812, in Index.get_loc(self, key)
+   3807     if isinstance(casted_key, slice) or (
+   3808         isinstance(casted_key, abc.Iterable)
+   3809         and any(isinstance(x, slice) for x in casted_key)
+   3810     ):
+   3811         raise InvalidIndexError(key)
+-> 3812     raise KeyError(key) from err
+   3813 except TypeError:
+   3814     # If we have a listlike key, _check_indexing_error will raise
+   3815     #  InvalidIndexError. Otherwise we fall through and re-raise
+   3816     #  the TypeError.
+   3817     self._check_indexing_error(key)
+
+KeyError: 0
