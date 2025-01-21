@@ -107,7 +107,7 @@ class Morph:
             print("-------------------------------------------------")
             print(f"Correctly Classified Pairs: {acc_count}/{len(self.borderline_pairs)}")
         
-        return 
+        return self.morphs, self.preds, self.results, self.metrics
     
 
     def plot_morph(self, pair: tuple) -> None:
