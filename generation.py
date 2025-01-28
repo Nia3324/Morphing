@@ -4,7 +4,7 @@ from scipy import signal
 
 class Generation:
     def __init__(self, base_functions = ('sin', 'sin'), n_samples = 200, class_ratio = 0.5,
-                 n_timepoints = 100, frequencies = (0.5, 0.5), noise_level = (0.2, 0.2), shift = 0.1):
+                 n_timepoints = 100, frequencies = (0.5, 0.5), noise_level = (0.1, 0.1), shift_vert = 0.1, shif_horz = 0.1):
         
         self.base_functions = base_functions
         self.n_samples = n_samples
@@ -12,7 +12,8 @@ class Generation:
         self.n_timepoints = n_timepoints
         self.frequencies = frequencies
         self.noise_level = noise_level
-        self.shift = shift
+        self.shift_vert = shift_vert
+        self.shift_horz = shif_horz
 
         self.class0 = None
         self.class1 = None
@@ -33,19 +34,30 @@ class Generation:
         base_signals = {}
         
         if func == 'sin':
-            signal_data = np.sin(2 * np.pi * freq * t)
+            if apply_sift:
+                signal_data = np.sin(2 * np.pi * freq * t) + self.shift_horz
+            else:
+                signal_data = np.sin(2 * np.pi * freq * t)
         elif func == 'cos':
-            signal_data = np.cos(2 * np.pi * freq * t)
+            if apply_sift:
+                signal_data = np.cos(2 * np.pi * freq * t) + self.shift_horz
+            else:
+                signal_data = np.cos(2 * np.pi * freq * t)
         elif func == 'sawtooth':
-            signal_data = signal.sawtooth(2 * np.pi * freq * t)
+            if apply_sift:
+                signal_data = signal.sawtooth(2 * np.pi * freq * t) + self.shift_horz
+            else:
+                signal_data = signal.sawtooth(2 * np.pi * freq * t)
         elif func == 'square':
-            signal_data = signal.square(2 * np.pi * freq * t)
+            if apply_sift:
+                signal_data = signal.square(2 * np.pi * freq * t) + self.shift_horz
+            else:
+                signal_data = signal.square(2 * np.pi * freq * t)
                 
         base_signals[f'{func}_{freq}'] = signal_data
         
-        # Generate samples with random combinations and noise
+        signals_array = np.zeros((self.n_timepoints, samples))
         for i in range(samples):
-            # Randomly combine base signals
             weights = np.random.uniform(-1, 1, len(base_signals))
             combined_signal = np.zeros_like(t)
             
@@ -58,11 +70,13 @@ class Generation:
             # Add random noise
             noise = np.random.normal(0, noise_lvl, self.n_timepoints)
             if apply_sift:
-                final_signal = abs(combined_signal) + noise + self.shift
-            else: final_signal = abs(combined_signal) + noise
-            
-            # Add to DataFrame
-            df[f'sample_{i+1}'] = final_signal
+                final_signal = abs(combined_signal) + noise + self.shift_vert
+            else: 
+                final_signal = abs(combined_signal) + noise
+
+            signals_array[:, i] = final_signal
+
+        df = pd.DataFrame(signals_array, columns=[str(i+1) for i in range(samples)])
         return df
     
     def generate_data(self) -> None:
@@ -76,8 +90,8 @@ class Generation:
                                           self.n_samples - int(self.n_samples * self.class_ratio), 
                                           self.noise_level[1], apply_sift=False)
         
-        X_class0 = self.class0.drop('time', axis=1).T
-        X_class1 = self.class1.drop('time', axis=1).T
+        X_class0 = self.class0.T
+        X_class1 = self.class1.T
         
         X_df = pd.concat([X_class0, X_class1])
         self.X = X_df.values
