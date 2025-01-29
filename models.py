@@ -12,7 +12,6 @@ import pycatch22
 from rocket.code.rocket_functions import generate_kernels, apply_kernels
 
 
-
 def create_lstm(sequence_length : int, n_features : int) -> Sequential:
     model = Sequential([
         LSTM(32, input_shape=(sequence_length, n_features), return_sequences=True),
