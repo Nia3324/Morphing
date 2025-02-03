@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from aeon.distances import dtw_distance
 import importlib
@@ -7,21 +6,23 @@ tsmorph = importlib.import_module('tsmorph-xai.tsmorph.tsmorph')
 TSmorph = tsmorph.TSmorph
 from models import Models
 
+
 class Morph:
-    def __init__(self, X : np.array, y : np.array): # apply on test data 
+    def __init__(self, X : np.array, y : np.array, target_class = 1): # apply on test data 
         self.X = X
         self.y = y
-        self.class0_X = self.X[self.y == 0]
-        self.class1_X = self.X[self.y == 1]
+        self.target_class = target_class
+        self.class1_X = self.X[self.y == target_class]
+        self.class1_y = self.y[self.y == target_class]
+
+        self.class0_X = self.X[self.y != target_class]
+        self.class0_y = self.y[self.y != target_class]
+
         self.distances = []
         self.borderline_pairs = None
         return
     
     def get_DTWGlobalBorderline(self, n_samples : int) -> None:   
-        # check if y in binarry 
-        if np.unique(self.y).shape[0] != 2:
-            print("Error: Target must be binary")
-
         distances = [] # DTW distances
         indices = [] # (class0, class1)  
 
@@ -54,8 +55,12 @@ class Morph:
             print("Pair-Wise Results:")
         for i, pair in enumerate(self.borderline_pairs):
             # desired shape (1, n_features)
+
             source_c0 = self.class0_X[pair[0][0]].reshape(1,-1)
+            source_c0_y = self.class0_y[pair[0][0]]
+
             target_c1 = self.class1_X[pair[0][1]].reshape(1,-1)
+            target_c1_y = self.class1_y[pair[0][1]]
 
             # apply morphing
             morph = TSmorph(S=source_c0, T=target_c1, granularity=granularity+2).transform()
@@ -70,7 +75,7 @@ class Morph:
             else:
                 pred,_ = model.predict(morphing)
             
-            if(pred[0]!=0 or pred[-1]!=1):
+            if(pred[0]!=source_c0_y or pred[-1]!=target_c1_y):
                 continue
             else:
                 acc_count+=1
