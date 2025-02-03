@@ -82,7 +82,7 @@ class Morph:
                 # calculate morphing percentage
                 change_idx = 1
                 for i in range(1, len(pred)-1):  # account for both original series
-                    if pred[i] != 0:
+                    if pred[i] != source_c0_y:
                         change_idx = i
                         break
                 perc = 1/granularity * change_idx
