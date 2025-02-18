@@ -22,9 +22,11 @@ class Morph:
         self.borderline_pairs = None
         return
     
-    def get_DTWGlobalBorderline(self, n_samples : int) -> None:   
+    def get_DTWGlobalBorderline(self, perc_samples : float) -> None:   
         distances = [] # DTW distances
         indices = [] # (class0, class1)  
+        # round number of samples
+        n_samples = round(len(self.X) * perc_samples)
 
         # get distance matrix
         for i, sample0 in enumerate(self.class0_X):
@@ -32,13 +34,13 @@ class Morph:
                 distances.append(dtw_distance(sample0, sample1))
                 indices.append((i,j))
 
-        closer_neighbors = np.argsort(distances)
-        if n_samples > len(closer_neighbors):
-            n_samples = len(closer_neighbors)
+        sorted_neighbors = np.argsort(distances)
+        if n_samples > len(sorted_neighbors):
+            n_samples = len(sorted_neighbors)
 
         self.distances = np.array(distances[:n_samples])
 
-        self.borderline_pairs = [(indices[idx], distances[idx]) for idx in closer_neighbors[:n_samples]]
+        self.borderline_pairs = [(indices[idx], distances[idx]) for idx in sorted_neighbors[:n_samples]]
         return
 
 
