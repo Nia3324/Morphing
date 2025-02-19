@@ -19,7 +19,7 @@ class Morph:
         self.class0_y = self.y[self.y != target_class]
 
         self.distances = []
-        self.borderline_pairs = None
+        self.borderline_pairs = {}
         return
     
     def get_DTWGlobalBorderline(self, perc_samples : float) -> None:   
@@ -43,11 +43,13 @@ class Morph:
 
         self.distances = np.array(distances[:n_samples])
 
-        self.borderline_pairs = [(indices[idx], distances[idx]) for idx in sorted_neighbors[:n_samples]]
+        for idx in sorted_neighbors[:n_samples]:
+            self.borderline_pairs[indices[idx]] = distances[idx]
+            
         return
 
 
-    def Binay_MorphingCalculater(self, model : Models, granularity=100, verbose=False) -> None:
+    def Binay_MorphingCalculater(self, model : Models, granularity=100, verbose=False):
         morphs_perc = []
         morphs = {}
         preds = {}
@@ -58,14 +60,14 @@ class Morph:
 
         if verbose:
             print("Pair-Wise Results:")
-        for i, pair in enumerate(self.borderline_pairs):
+        for pair in self.borderline_pairs.keys():
             # desired shape (1, n_features)
 
-            source_c0 = self.class0_X[pair[0][0]].reshape(1,-1)
-            source_c0_y = self.class0_y[pair[0][0]]
+            source_c0 = self.class0_X[pair[0]].reshape(1,-1)
+            source_c0_y = self.class0_y[pair[0]]
 
-            target_c1 = self.class1_X[pair[0][1]].reshape(1,-1)
-            target_c1_y = self.class1_y[pair[0][1]]
+            target_c1 = self.class1_X[pair[1]].reshape(1,-1)
+            target_c1_y = self.class1_y[pair[1]]
 
             # apply morphing
             morph = TSmorph(S=source_c0, T=target_c1, granularity=granularity+2).transform()
@@ -93,11 +95,11 @@ class Morph:
                 perc = 1/granularity * change_idx
                 morphs_perc.append(perc)
 
-                morphs[pair[0]] = morph
-                preds[pair[0]] = pred
-                results[pair[0]] = round(perc, 2)
+                morphs[pair] = morph
+                preds[pair] = pred
+                results[pair] = round(perc, 2)
                 if verbose:
-                    print(f"Pair: {pair[0]} -> Morphing percentage: {perc:.2f}")
+                    print(f"Pair: {pair} -> Morphing percentage: {perc:.2f}")
 
         # Calculate metrics only if morphs list is not empty
         if morphs_perc:
