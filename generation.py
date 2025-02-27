@@ -76,7 +76,7 @@ class Generation:
 
             signals_array[:, i] = final_signal
 
-        df = pd.DataFrame(signals_array, columns=[str(i+1) for i in range(samples)])
+        df = pd.DataFrame(signals_array, columns=[str(i+1) for i in range(samples)])    
         return df
     
     def generate_data(self) -> None:

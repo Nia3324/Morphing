@@ -24,7 +24,7 @@ def create_lstm(sequence_length : int, n_features : int) -> Sequential:
 
     model.compile(
         optimizer='adam',
-        loss='binary_crossentropy',
+        loss='categorical_crossentropy',
         metrics=['accuracy']
     )
     return model
