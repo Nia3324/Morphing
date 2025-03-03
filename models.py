@@ -3,7 +3,7 @@ import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import RidgeClassifierCV
-from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import OneHotEncoder
 import matplotlib.pyplot as plt
 
 from keras.models import Sequential
@@ -12,19 +12,30 @@ import pycatch22
 from rocket.code.rocket_functions import generate_kernels, apply_kernels
 
 
-def create_lstm(sequence_length : int, n_features : int) -> Sequential:
+def create_lstm(sequence_length: int, n_features: int, n_classes: int) -> Sequential:
+    if n_classes == 2:
+        # Binary classification
+        output_units = 1
+        activation = 'sigmoid'
+        loss = 'binary_crossentropy'
+    else:
+        # Multi-class classification
+        output_units = n_classes
+        activation = 'softmax'
+        loss = 'categorical_crossentropy'
+    
     model = Sequential([
         LSTM(32, input_shape=(sequence_length, n_features), return_sequences=True),
         Dropout(0.2),
         LSTM(16),
         Dropout(0.2),
         Dense(8, activation='relu'),
-        Dense(1, activation='sigmoid')
+        Dense(output_units, activation=activation)
     ])
 
     model.compile(
         optimizer='adam',
-        loss='categorical_crossentropy',
+        loss=loss,
         metrics=['accuracy']
     )
     return model
@@ -70,6 +81,12 @@ class Models:
         self.X_train = X_train
         self.y_train = y_train
 
+        self.original_classes = np.unique(y_train)
+        self.n_classes = len(self.original_classes)
+
+        self.encoder = OneHotEncoder(sparse=False)
+        self.endoded_y = self.encoder.fit_transform(self.y_train)
+
         self.model = None
         self.catch22_train = None
         self.rocket_kernels = None
@@ -79,22 +96,40 @@ class Models:
     def train_lstm(self, epochs=30, batch_size=8, validation_split=0.2, verbose=False) -> None:
         n_features = self.X_train.shape[2]
         sequence_length = self.X_train.shape[1]
+
         model = create_lstm(sequence_length, n_features)
-        model.fit(self.X_train, 
-                  self.y_train, 
-                  epochs=epochs, 
-                  batch_size=batch_size, 
-                  validation_split=validation_split,
-                  verbose=0)
+        target = self.encoded_y if self.n_classes > 2 else self.y_train
+    
+        history = model.fit(
+            self.X_train, 
+            target, 
+            epochs=epochs, 
+            batch_size=batch_size, 
+            validation_split=validation_split,
+            verbose=1 if verbose else 0
+        )
         self.model = model
         
-        history = self.model.history.history
         if verbose:
-            plt.plot(history['val_accuracy'])
-            plt.plot(history['val_loss'])
-            plt.title('LSTM accuracy')
-            plt.xlabel('epoch')
-            plt.legend(['accuracy', 'loss'], loc='upper left')
+            plt.figure(figsize=(12, 4))
+            
+            plt.subplot(1, 2, 1)
+            plt.plot(history.history['accuracy'])
+            plt.plot(history.history['val_accuracy'])
+            plt.title('LSTM Model Accuracy')
+            plt.xlabel('Epoch')
+            plt.ylabel('Accuracy')
+            plt.legend(['Train', 'Validation'], loc='upper left')
+            
+            plt.subplot(1, 2, 2)
+            plt.plot(history.history['loss'])
+            plt.plot(history.history['val_loss'])
+            plt.title('LSTM Model Loss')
+            plt.xlabel('Epoch')
+            plt.ylabel('Loss')
+            plt.legend(['Train', 'Validation'], loc='upper left')
+            
+            plt.tight_layout()
             plt.show()
         return
     
@@ -119,10 +154,18 @@ class Models:
 
     # Predictions ==============================================================================
     def predict(self, X_test : np.array) -> tuple:
-        if(self.model_name == 'lstm'):
+        if(self.model_name == 'lstm'):  
             y_proba = self.model.predict(X_test, verbose=0)
-            y_pred = np.where(y_proba > 0.5, 1, 0)
-        
+
+            if self.n_classes == 2:
+                    y_pred_indices = np.where(y_proba > 0.5, 1, 0).flatten()
+            else:
+                y_pred_indices = np.argmax(y_proba, axis=1)
+            y_pred = self.index_to_original_label(y_pred_indices)
+    
+            if self.n_classes == 2 and y_proba.shape[1] == 1:
+                y_proba = np.hstack([1-y_proba, y_proba])
+            
         elif(self.model_name == 'catch22'):
             catch22_test = compute_catch22_features(X_test)
             y_pred = self.model.predict(catch22_test)
