@@ -192,11 +192,10 @@ class Morph:
         
         # Efficient class separation
         self.class1_mask = self.y == target_class
-        self.class0_mask = self.class1_mask
-        
+        self.class0_mask = self.y != target_class
+
         self.class1_X = self.X[self.class1_mask]
         self.class1_y = self.y[self.class1_mask]
-        
         self.class0_X = self.X[self.class0_mask]
         self.class0_y = self.y[self.class0_mask]
         
@@ -226,7 +225,6 @@ class Morph:
         
         for i in prange(n0):
             for j in range(n1):
-                # Using DTW distance (ensure this works with Numba)
                 distances[i * n1 + j] = dtw_distance(class0_X[i], class1_X[j])
         
         return distances
@@ -240,7 +238,6 @@ class Morph:
         perc_samples : float
             Percentage of samples to consider for borderline pairs
         """
-        # Compute distances using Numba-accelerated method
         distances = self.compute_dtw_distances(self.class0_X, self.class1_X)
         
         # Sort distances and select top pairs
@@ -262,62 +259,24 @@ class Morph:
             for idx in sorted_indices[:n_samples]
         }
     
-    def _predict_with_model(self, model: Any, morphing: np.ndarray) -> Tuple[np.ndarray, Any]:
-        """
-        Unified prediction method for different model types
-        
-        Parameters:
-        -----------
-        model : Any
-            Machine learning model
-        morphing : np.ndarray
-            Morphed time series data
-        
-        Returns:
-        --------
-        Tuple of predictions and additional model output
-        """
-        if model.model_name == 'lstm' and len(morphing.shape) != 3:
-            morphing = morphing.reshape(morphing.shape[0], 1, morphing.shape[1])
-        return model.predict(morphing)
-    
     def Binary_MorphingCalculater(
         self, 
         models: Tuple[Models], 
         granularity: int = 100, 
         verbose: bool = False
     ) -> Dict:
-        """
-        Compute morphing percentages between borderline pairs for multiple models
-        
-        Parameters:
-        -----------
-        models : Tuple of classification models
-        granularity : int, optional
-            Number of intermediate points (default 100)
-        verbose : bool, optional
-            Print detailed information (default False)
-        
-        Returns:
-        --------
-        Dictionary with morphing results for each model
-        """
-        # Initialize results dictionary
         results = {}
-
-        # Loop through borderline pairs
+        
         for pair, _ in tqdm(self.borderline_pairs.items()):
-            # Prepare source and target examples
             source_c0 = self.class0_X[pair[0]].reshape(1, -1)
             source_c0_y = self.class0_y[pair[0]]
             target_c1 = self.class1_X[pair[1]].reshape(1, -1)
             target_c1_y = self.class1_y[pair[1]]
             
-            # Generate morphing time series
+            # Apply morphing
             morph = TSmorph(S=source_c0, T=target_c1, granularity=granularity+2).transform()
             morphing = np.array(morph.T, dtype=np.float64)
             
-            # Process for each model
             for model in models:
                 # Initialize model-specific results if not exists
                 if model.model_name not in results:
@@ -328,29 +287,38 @@ class Morph:
                         'morphs_perc': []
                     }
                 
-                # Predict labels for morphing series
-                pred, _ = self._predict_with_model(model, morphing)
-                
-                # Check if morphing is valid (starts and ends with correct labels)
+                # Predict new labels using selected model
+                if model.model_name == 'lstm':
+                    if len(morphing.shape) != 3:  # Ensure it has 3 dimensions (samples, sequence_length, features)
+                        morphing = morphing.reshape(morphing.shape[0], 1, morphing.shape[1])
+                    pred,_ = model.predict(morphing)
+                else:
+                    pred,_ = model.predict(morphing)
+
+
+                # Ensure valid morphing pairs
                 if pred[0] == source_c0_y and pred[-1] == target_c1_y:
+                    
                     # Find where label changes
-                    change_idx = next(
-                        (i for i in range(1, len(pred)-1) if pred[i] != source_c0_y), 
-                        len(pred)-1
-                    )
+                    change_idx = 1
+                    for i in range(1, len(pred)-1):  # account for both original series
+                        if pred[i] != source_c0_y:
+                            change_idx = i
+                            break
+            
+                    # Calculate morphing percentage 
+                    perc = 1/granularity * change_idx
                     
-                    # Calculate morphing percentage
-                    morphing_percentage = (1/granularity) * change_idx
-                    
-                    # Store results
                     results[model.model_name]['morphs'][pair] = morph
                     results[model.model_name]['model_preds'][pair] = pred
-                    results[model.model_name]['pair_results'][pair] = round(morphing_percentage, 2)
-                    results[model.model_name]['morphs_perc'].append(morphing_percentage)
-        
+                    results[model.model_name]['pair_results'][pair] = round(perc, 2)
+                    results[model.model_name]['morphs_perc'].append(perc)
+                    
+                    if verbose:
+                        print(f"Model {model} Pair: {pair} -> Morphing percentage: {perc:.2f}")
+
         # Compute metrics for each model
         for model_name, model_results in results.items():
-            # Compute mean and standard deviation of morphing percentages
             morphs_perc = model_results['morphs_perc']
             model_results['metrics'] = {
                 'mean': float(np.mean(morphs_perc)) if morphs_perc else 0.0,
@@ -358,69 +326,3 @@ class Morph:
             }
         
         return results
-    
-    def _print_verbose_results(self, acc_count: int, metrics: Dict):
-        """
-        Print detailed results of morphing analysis
-        
-        Parameters:
-        -----------
-        acc_count : int
-            Number of correctly classified pairs
-        metrics : Dict
-            Morphing percentage metrics
-        """
-        print("-------------------------------------------------")
-        print(f"Mean morphing percentage: {metrics['mean']:.2f}")
-        print(f"Standard deviation of morphing percentage: {metrics['std']:.2f}")
-        print("-------------------------------------------------")
-        print(f"Correctly Classified Pairs: {acc_count}/{len(self.borderline_pairs)}")
-    
-    def plot_morph(self, pair: Tuple, morphs: Dict, preds: Dict) -> None:
-        """
-        Visualize morphed time series
-        
-        Parameters:
-        -----------
-        pair : Tuple
-            Pair of indices to plot
-        morphs : Dict
-            Morphed time series data
-        preds : Dict
-            Predictions for each morphed series
-        """
-        if pair not in morphs:
-            print("Pair not found")
-            return
-        
-        morph = morphs[pair]
-        start_color, end_color = '#61E6AA', '#5722B1'
-        
-        plt.figure(figsize=(12, 6))
-        
-        for idx, column in enumerate(morph.columns):
-            linew = 2 if idx in {0, len(morph.columns)-1} else 1
-            color = start_color if preds[pair][idx] == 0 else end_color
-            
-            label = (
-                'Class 0' if idx == 0 
-                else 'Class 1' if idx == len(morph.columns)-1 
-                else None
-            )
-            
-            plt.plot(
-                morph.index, 
-                morph[column], 
-                color=color, 
-                label=label, 
-                linewidth=linew, 
-                alpha=0.5
-            )
-        
-        plt.title('Morphed Time Series', fontsize=14, pad=15)
-        plt.xlabel('Time', fontsize=12)
-        plt.ylabel('Value', fontsize=12)
-        plt.grid(True, alpha=0.3)
-        plt.legend(loc='upper left')
-        plt.tight_layout()
-        plt.show()
