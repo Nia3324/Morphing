@@ -79,13 +79,14 @@ class Models:
             raise ValueError("Invalid model name. Choose from ['lstm', 'catch22', 'rocket']")
         self.model_name = model_name
         self.X_train = X_train
-        self.y_train = y_train
+        #self.y_train = y_trains
 
         self.original_classes = np.unique(y_train)
         self.n_classes = len(self.original_classes)
 
-        self.encoder = OneHotEncoder(sparse=False)
-        self.endoded_y = self.encoder.fit_transform(self.y_train)
+        self.y_train = y_train.reshape(-1, 1) if y_train.ndim == 1 else y_train
+        self.encoder = OneHotEncoder(sparse_output=False)
+        self.encoded_y = None
 
         self.model = None
         self.catch22_train = None
@@ -97,7 +98,9 @@ class Models:
         n_features = self.X_train.shape[2]
         sequence_length = self.X_train.shape[1]
 
-        model = create_lstm(sequence_length, n_features)
+        self.encoded_y = self.encoder.fit_transform(self.y_train)
+
+        model = create_lstm(sequence_length, n_features, self.n_classes)
         target = self.encoded_y if self.n_classes > 2 else self.y_train
     
         history = model.fit(
@@ -132,6 +135,9 @@ class Models:
             plt.tight_layout()
             plt.show()
         return
+    
+    def index_to_original_label(self, indices: np.array) -> np.array:
+        return np.array([self.original_classes[idx] for idx in indices])
     
     # Random Forest w/ Catch22 Features =======================================================
     def train_catch22(self) -> None:
