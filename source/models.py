@@ -148,7 +148,7 @@ class Models:
         return
 
     # Rocket w/ Ridge Classifier ==============================================================
-    def train_rocket(self, n_kernels=10_000) -> None: 
+    def train_rocket(self, n_kernels=10000) -> None: 
         X_train = np.squeeze(self.X_train, axis=1) if len(self.X_train.shape) == 3 and self.X_train.shape[1] == 1 else self.X_train
         
         self.rocket_kernels = generate_kernels(X_train.shape[-1], n_kernels)

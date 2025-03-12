@@ -1,2 +1,7 @@
 *.pkl
 *.pyc
+_pycache_
+images 
+results
+others
+preliminary_results
