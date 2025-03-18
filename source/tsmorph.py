@@ -11,7 +11,7 @@ class TSmorph:
         """
         self.S = S  # Shape: [dimensions, time_points]
         self.T = T  # Shape: [dimensions, time_points]
-        self.granularity = granularity
+        self.granularity = granularity+2  # Add 2 to include the source and target series
 
     def transform(self) -> np.array:
         """

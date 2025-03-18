@@ -6,4 +6,11 @@ aeon
 tensorflow
 keras
 pycatch22==0.4.5
+seaborn 
 fastdtw
+pycatch22
+sktime
+tqdm
+
+wfdb
+loguru

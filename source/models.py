@@ -9,7 +9,11 @@ import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout
 import pycatch22
-from rocket.code.rocket_functions import generate_kernels, apply_kernels
+
+#from sktime.classification.kernel_based import RocketClassifier
+#from rocket.code.rocket_functions import generate_kernels, apply_kernels
+from sktime.transformations.panel.rocket import Rocket
+
 
 
 def create_lstm(sequence_length: int, n_features: int, n_classes: int) -> Sequential:
@@ -97,12 +101,13 @@ class Models:
     def train_lstm(self, epochs=30, batch_size=8, validation_split=0.2, verbose=False) -> None:
         n_features = self.X_train.shape[2]
         sequence_length = self.X_train.shape[1]
+        #print(self.X_train.shape[0], n_features, sequence_length)
 
         self.encoded_y = self.encoder.fit_transform(self.y_train)
 
         model = create_lstm(sequence_length, n_features, self.n_classes)
         target = self.encoded_y if self.n_classes > 2 else self.y_train
-    
+
         history = model.fit(
             self.X_train, 
             target, 
@@ -149,13 +154,23 @@ class Models:
 
     # Rocket w/ Ridge Classifier ==============================================================
     def train_rocket(self, n_kernels=10000) -> None: 
-        X_train = np.squeeze(self.X_train, axis=1) if len(self.X_train.shape) == 3 and self.X_train.shape[1] == 1 else self.X_train
+        # X_train = np.squeeze(self.X_train, axis=1) if len(self.X_train.shape) == 3 and self.X_train.shape[1] == 1 else self.X_train
+    
+        # self.rocket_kernels = generate_kernels(X_train.shape[-1], n_kernels)
+        # X_train_transform = apply_kernels(X_train, self.rocket_kernels)
         
-        self.rocket_kernels = generate_kernels(X_train.shape[-1], n_kernels)
-        X_train_transform = apply_kernels(X_train, self.rocket_kernels)
-        
+        # self.model = RidgeClassifierCV(alphas=np.logspace(-3, 3, 10))
+        # self.model.fit(X_train_transform, self.y_train)
+
+        #self.model = RocketClassifier(num_kernels=n_kernels)
+        #self.model.fit(self.X_train, self.y_train)
+
+        self.rocket_kernels = Rocket(num_kernels=n_kernels) 
+        self.rocket_kernels.fit(self.X_train) 
+
+        X_train_trasform = self.rocket_kernels.transform(self.X_train)
         self.model = RidgeClassifierCV(alphas=np.logspace(-3, 3, 10))
-        self.model.fit(X_train_transform, self.y_train)
+        self.model.fit(X_train_trasform, self.y_train)
         return
 
     # Predictions ==============================================================================
@@ -178,8 +193,8 @@ class Models:
             y_proba = self.model.predict_proba(catch22_test)
         
         elif(self.model_name == 'rocket'): 
-            X_test = np.squeeze(X_test, axis=1) if len(X_test.shape) == 3 and X_test.shape[1] == 1 else X_test
-            X_test_transform = apply_kernels(X_test, self.rocket_kernels)
+            # X_test = np.squeeze(X_test, axis=1) if len(X_test.shape) == 3 and X_test.shape[1] == 1 else X_test
+            X_test_transform  = self.rocket_kernels.transform(X_test)
             y_pred = self.model.predict(X_test_transform)
             y_proba = self.model.decision_function(X_test_transform)
 

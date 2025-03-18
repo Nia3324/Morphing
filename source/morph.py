@@ -1,10 +1,34 @@
 import numpy as np
 from aeon.distances import dtw_distance
 from typing import Dict, Tuple
-from numba import njit, prange
+from numba import njit, prange 
 from source.models import Models
 from source.tsmorph import TSmorph
 from tqdm import tqdm
+
+@njit
+def dtw_distance(s1, s2):
+    """
+    Numba-compatible DTW distance calculation.
+    """
+    n, m = len(s1), len(s2)
+    dtw_matrix = np.zeros((n + 1, m + 1), dtype=np.float64)
+    
+    for i in range(1, n + 1):
+        dtw_matrix[i, 0] = np.inf
+    for j in range(1, m + 1):
+        dtw_matrix[0, j] = np.inf
+    
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            cost = np.abs(s1[i - 1] - s2[j - 1])
+            dtw_matrix[i, j] = cost + min(
+                dtw_matrix[i - 1, j],      # Insertion
+                dtw_matrix[i, j - 1],      # Deletion
+                dtw_matrix[i - 1, j - 1]   # Match
+            )
+    
+    return dtw_matrix[n, m]
 
 class Morph:
     def __init__(self, X: np.ndarray, y: np.ndarray, target_class: int = 1):
@@ -59,7 +83,6 @@ class Morph:
         
         for i in prange(n0):
             for j in range(n1):
-                # Compute DTW distance for each dimension and take the average
                 avg_distance = 0.0
                 for d in range(class0_X.shape[1]):  # Iterate over dimensions
                     avg_distance += dtw_distance(class0_X[i, d], class1_X[j, d])
