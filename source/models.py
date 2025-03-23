@@ -10,8 +10,6 @@ from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout
 import pycatch22
 
-#from sktime.classification.kernel_based import RocketClassifier
-#from rocket.code.rocket_functions import generate_kernels, apply_kernels
 from sktime.transformations.panel.rocket import Rocket
 
 

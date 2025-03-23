@@ -84,7 +84,7 @@ class MITBIHDataset:
         self,
         lead_index: int = 0,
         apply_filter: bool = True,
-        subjects: Union[List[str], None] = None,
+        subjects: Union[List[str], None] = SUBJECTS,  # Set default value to SUBJECTS
         subsets: Union[List[str], str] = "aami"
     ):
         """Initialize the MITBIHDataset class. If a pickle file exists, it

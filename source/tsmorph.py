@@ -69,9 +69,9 @@ class TSmorph:
             for i in range(self.granularity):
                 ax.plot(morphed_series[i, dim, :], color=colors[i], linewidth=2)
 
-            ax.set_title(f'Dimension {dim}', fontsize=14, pad=15)
-            ax.set_xlabel('Time', fontsize=12)
-            ax.set_ylabel('Value', fontsize=12)
+            ax.set_title(f'Dimension {dim}', fontsize=16, pad=15)
+            ax.set_xlabel('Time', fontsize=16)
+            ax.set_ylabel('Value', fontsize=16)
             ax.grid(True, alpha=0.3)
             ax.legend()
 
