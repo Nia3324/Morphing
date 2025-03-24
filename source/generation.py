@@ -37,22 +37,22 @@ class Generation:
             if apply_sift:
                 signal_data = np.sin(2 * np.pi * freq * t) + self.shift_horz
             else:
-                signal_data = np.sin(2 * np.pi * freq * t)
+                signal_data = np.sin(2 * np.pi * freq * t) + self.shift_horz
         elif func == 'cos':
             if apply_sift:
-                signal_data = np.cos(2 * np.pi * freq * t) + self.shift_horz
+                signal_data = np.cos(2 * np.pi * freq * t) + self.shift_horz 
             else:
-                signal_data = np.cos(2 * np.pi * freq * t)
+                signal_data = np.cos(2 * np.pi * freq * t) + self.shift_horz
         elif func == 'sawtooth':
             if apply_sift:
-                signal_data = signal.sawtooth(2 * np.pi * freq * t) + self.shift_horz
+                signal_data = signal.sawtooth(2 * np.pi * freq * t)  + self.shift_horz
             else:
-                signal_data = signal.sawtooth(2 * np.pi * freq * t)
+                signal_data = signal.sawtooth(2 * np.pi * freq * t) + self.shift_horz
         elif func == 'square':
             if apply_sift:
-                signal_data = signal.square(2 * np.pi * freq * t) + self.shift_horz
+                signal_data = signal.square(2 * np.pi * freq * t) + self.shift_horz 
             else:
-                signal_data = signal.square(2 * np.pi * freq * t)
+                signal_data = signal.square(2 * np.pi * freq * t) + self.shift_horz
                 
         base_signals[f'{func}_{freq}'] = signal_data
         
@@ -103,8 +103,8 @@ class Generation:
         self.y = np.concatenate([y_class0, y_class1])
          
         # Shuffle the data
-        shuffle_idx = np.random.permutation(len(self.y))
-        self.X = self.X[shuffle_idx]
-        self.y = self.y[shuffle_idx]
+        # shuffle_idx = np.random.permutation(len(self.y))
+        # self.X = self.X[shuffle_idx]
+        # self.y = self.y[shuffle_idx]
 
         return self.X, self.y
