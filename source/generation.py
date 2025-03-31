@@ -35,24 +35,24 @@ class Generation:
         
         if func == 'sin':
             if apply_sift:
-                signal_data = np.sin(2 * np.pi * freq * t) + self.shift_horz
+                signal_data = np.sin(2 * np.pi * freq * t + self.shift_horz) 
             else:
-                signal_data = np.sin(2 * np.pi * freq * t) + self.shift_horz
+                signal_data = np.sin(2 * np.pi * freq * t) 
         elif func == 'cos':
             if apply_sift:
-                signal_data = np.cos(2 * np.pi * freq * t) + self.shift_horz 
+                signal_data = np.cos(2 * np.pi * freq * t + self.shift_horz) 
             else:
-                signal_data = np.cos(2 * np.pi * freq * t) + self.shift_horz
+                signal_data = np.cos(2 * np.pi * freq * t) 
         elif func == 'sawtooth':
             if apply_sift:
-                signal_data = signal.sawtooth(2 * np.pi * freq * t)  + self.shift_horz
+                signal_data = signal.sawtooth(2 * np.pi * freq * t + self.shift_horz)  
             else:
-                signal_data = signal.sawtooth(2 * np.pi * freq * t) + self.shift_horz
+                signal_data = signal.sawtooth(2 * np.pi * freq * t) 
         elif func == 'square':
             if apply_sift:
-                signal_data = signal.square(2 * np.pi * freq * t) + self.shift_horz 
+                signal_data = signal.square(2 * np.pi * freq * t + self.shift_horz) 
             else:
-                signal_data = signal.square(2 * np.pi * freq * t) + self.shift_horz
+                signal_data = signal.square(2 * np.pi * freq * t) 
                 
         base_signals[f'{func}_{freq}'] = signal_data
         
