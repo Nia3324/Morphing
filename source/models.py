@@ -146,7 +146,7 @@ class Models:
     def train_catch22(self) -> None:
         self.catch22_train = compute_catch22_features(self.X_train)
 
-        self.model = RandomForestClassifier()
+        self.model = RandomForestClassifier(random_state=42)
         self.model.fit(self.catch22_train, self.y_train)
         return
 

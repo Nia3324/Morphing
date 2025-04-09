@@ -2,7 +2,7 @@
 *.pyc
 _pycache_
 images 
-results
+pickles
 others
 preliminary_results
 data
