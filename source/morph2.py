@@ -115,10 +115,8 @@ class Morph:
         return np.array(morphs)
     
 
-    def get_PercMorphs(self,  models, granularity:int=100) -> np.ndarray:
-        percs = []
+    def CalculateMorph(self,  models: Tuple[Models], granularity:int=100, verbose = False) -> np.ndarray:
         morphs = []
-        good_morphs = []
         results = {}
 
         for pair, _ in self.borderline_pairs.items():
@@ -131,6 +129,12 @@ class Morph:
             morphs.append(m)
 
         for model in models:
+            results[model.model_name] = {}
+            good_morphs = []
+            good_pred = []
+            indices = []
+            percentage = []
+
             for morphing in tqdm(morphs):
                 # Predict new labels using selected model
                 if model.model_name == 'lstm':
@@ -149,11 +153,28 @@ class Morph:
                         if pred[i] != source_c0_y:
                             change_idx = i
                             break
-                
-                    percs.append(change_idx)
+
+                    # Calculate morphing percentage 
+                    perc = 1/granularity * change_idx
+                                    
                     good_morphs.append(morphing)
-            
-            results[model.model_name] = (good_morphs, percs)
+                    good_pred.append(round(perc, 2))
+                    indices.append(change_idx)
+                    percentage.append(perc)
+          
+         
+            results[model.model_name]['morphs'] = good_morphs
+            results[model.model_name]['model_preds'] = good_pred
+            results[model.model_name]['change_perc'] = percentage 
+            results[model.model_name]['change_indice'] = indices 
+                        
+        # Compute metrics for each model
+        for _, model_results in results.items():
+            morphs_perc = model_results['change_perc']
+            model_results['metrics'] = {
+                'mean': float(np.mean(morphs_perc)) if morphs_perc else 0.0,
+                'std': float(np.std(morphs_perc)) if morphs_perc else 0.0
+            }
         return results
 
 
@@ -166,6 +187,7 @@ class Morph:
         results = {}
         
         for pair, _ in tqdm(self.borderline_pairs.items()):
+            good_morphs = []
             source_c0 = self.class0_X[pair[0]]  # Shape: [n_dimensions, n_timepoints]
             source_c0_y = self.class0_y[pair[0]]
             target_c1 = self.class1_X[pair[1]]  # Shape: [n_dimensions, n_timepoints]

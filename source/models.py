@@ -2,19 +2,38 @@ import numpy as np
 import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import RidgeClassifierCV
+from sklearn.linear_model import RidgeClassifier
 from sklearn.preprocessing import OneHotEncoder
 import matplotlib.pyplot as plt
-
+import tensorflow as tf
+import keras
+from keras import initializers
 from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout
+import os
+import random
 import pycatch22
 
 from sktime.transformations.panel.rocket import Rocket
 
+SEED = 42
+def set_seeds(seed=42):
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    tf.random.set_seed(seed)
+    # For TF 2.7+, you can also set the following:
+    os.environ['TF_DETERMINISTIC_OPS'] = '1'
+    os.environ['TF_CUDNN_DETERMINISTIC'] = '1'
+
+set_seeds(SEED)
 
 
 def create_lstm(sequence_length: int, n_features: int, n_classes: int) -> Sequential:
+    kernel_initializer = initializers.GlorotUniform(seed=SEED)
+    recurrent_initializer = initializers.Orthogonal(seed=SEED)
+    bias_initializer = initializers.Zeros() 
+
     if n_classes == 2:
         # Binary classification
         output_units = 1
@@ -25,20 +44,32 @@ def create_lstm(sequence_length: int, n_features: int, n_classes: int) -> Sequen
         output_units = n_classes
         activation = 'softmax'
         loss = 'categorical_crossentropy'
-    
+
     model = Sequential([
-        LSTM(32, input_shape=(sequence_length, n_features), return_sequences=True),
-        Dropout(0.2),
-        LSTM(16),
-        Dropout(0.2),
-        Dense(8, activation='relu'),
-        Dense(output_units, activation=activation)
+        LSTM(32, input_shape=(sequence_length, n_features), 
+             return_sequences=True,
+             kernel_initializer=kernel_initializer,
+             recurrent_initializer=recurrent_initializer,
+             bias_initializer=bias_initializer),
+        Dropout(0.2, seed=42),
+        LSTM(16,
+             kernel_initializer=kernel_initializer,
+             recurrent_initializer=recurrent_initializer,
+             bias_initializer=bias_initializer),
+        Dropout(0.2, seed=42),
+        Dense(8, activation='relu',
+              kernel_initializer=kernel_initializer,
+              bias_initializer=bias_initializer),
+        Dense(output_units, activation=activation,
+              kernel_initializer=kernel_initializer,
+              bias_initializer=bias_initializer)
     ])
 
+    optimizer = keras.optimizers.Adam(learning_rate=0.001)
     model.compile(
-        optimizer='adam',
+        optimizer=optimizer,
         loss=loss,
-        metrics=['accuracy']
+        metrics=['accuracy'], 
     )
     return model
 
@@ -146,12 +177,12 @@ class Models:
     def train_catch22(self) -> None:
         self.catch22_train = compute_catch22_features(self.X_train)
 
-        self.model = RandomForestClassifier(random_state=42)
+        self.model = RandomForestClassifier(random_state=SEED)
         self.model.fit(self.catch22_train, self.y_train)
         return
 
     # Rocket w/ Ridge Classifier ==============================================================
-    def train_rocket(self, n_kernels=10000) -> None: 
+    def train_rocket(self, n_kernels=5000) -> None: 
         # X_train = np.squeeze(self.X_train, axis=1) if len(self.X_train.shape) == 3 and self.X_train.shape[1] == 1 else self.X_train
     
         # self.rocket_kernels = generate_kernels(X_train.shape[-1], n_kernels)
@@ -163,11 +194,11 @@ class Models:
         #self.model = RocketClassifier(num_kernels=n_kernels)
         #self.model.fit(self.X_train, self.y_train)
 
-        self.rocket_kernels = Rocket(num_kernels=n_kernels) 
+        self.rocket_kernels = Rocket(num_kernels=n_kernels, random_state=SEED) 
         self.rocket_kernels.fit(self.X_train) 
 
         X_train_trasform = self.rocket_kernels.transform(self.X_train)
-        self.model = RidgeClassifierCV(alphas=np.logspace(-3, 3, 10))
+        self.model = RidgeClassifier(random_state=SEED)
         self.model.fit(X_train_trasform, self.y_train)
         return
 
