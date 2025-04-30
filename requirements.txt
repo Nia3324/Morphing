@@ -11,6 +11,5 @@ fastdtw
 pycatch22
 sktime
 tqdm
-
 wfdb
 loguru

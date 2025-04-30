@@ -2,7 +2,7 @@
 *.pyc
 _pycache_
 images 
-pickles
+results/pickles
 others
 preliminary_results
 data
@@ -11,3 +11,4 @@ use_case
 latex
 borderline_perc
 .tex
+pickles
