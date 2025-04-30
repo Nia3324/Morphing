@@ -12,3 +12,4 @@ latex
 borderline_perc
 .tex
 pickles
+__pycache__
