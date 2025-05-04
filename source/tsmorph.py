@@ -27,7 +27,9 @@ class TSmorph:
 
         return morphed_series
 
-    def plot_morphed_series(self, morphed_series: np.array, start_color='#61E6AA', end_color='#5722B1'):
+    def plot_morphed_series(self, morphed_series: np.array, 
+                            start_color='#61E6AA', end_color='#5722B1', 
+                            title=True, morph_labels=True) -> None:
         """
         Plot the morphed time series with separate subplots for each dimension and gradient colors.
 
@@ -62,18 +64,35 @@ class TSmorph:
             ax = axes[dim, 0]
 
             # Plot the original source and target series
-            ax.plot(self.S[dim, :], color=start_color, linewidth=3, label='Source Series')
-            ax.plot(self.T[dim, :], color=end_color, linewidth=3, label='Target Series')
+            ax.plot(self.S[dim, :], color=start_color, linewidth=3, label='Source Series (S)')
 
             # Plot the morphed series with gradient colors
-            for i in range(self.granularity):
-                ax.plot(morphed_series[i, dim, :], color=colors[i], linewidth=2)
+            for i in range(1, self.granularity - 1):
+                source_pct = round((self.granularity - i - 1) / (self.granularity - 1) * 100)
+                target_pct = round(i / (self.granularity - 1) * 100)
+                
+                if morph_labels:
+                    ax.plot(morphed_series[i, dim, :], color=colors[i], linewidth=2,
+                            label=f"S {source_pct}/{target_pct} T")
+                else:
+                    ax.plot(morphed_series[i, dim, :], color=colors[i], linewidth=2)
 
-            ax.set_title(f'Dimension {dim}', fontsize=16, pad=15)
+            # Plot the target series
+            ax.plot(self.T[dim, :], color=end_color, linewidth=3, label='Target Series (T)')
+
+            if title:
+                ax.set_title(f'Dimension {dim}', fontsize=16, pad=15)
             ax.set_xlabel('Time', fontsize=16)
             ax.set_ylabel('Value', fontsize=16)
             ax.grid(True, alpha=0.3)
-            ax.legend()
+
+            # Move legend outside plot
+            ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=12)
 
         plt.tight_layout()
         plt.show()
+
+        # save plot to file 
+        fig.savefig('morphed_series_plot.png', bbox_inches='tight')
+        plt.close(fig)
+        return
