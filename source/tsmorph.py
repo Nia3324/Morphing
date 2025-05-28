@@ -58,7 +58,7 @@ class TSmorph:
 
         # Create subplots for each dimension
         dimensions = self.S.shape[0]
-        fig, axes = plt.subplots(dimensions, 1, figsize=(12, 6 * dimensions), squeeze=False)
+        fig, axes = plt.subplots(dimensions, 1, figsize=(12, 4 * dimensions), squeeze=False)
 
         for dim in range(dimensions):
             ax = axes[dim, 0]
