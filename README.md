@@ -58,7 +58,7 @@ git clone https://github.com/Nia3324/Morphing
 
 
 
-## Credits
+## References
 
 `tsMIST` expands the work of the following papers:
 
