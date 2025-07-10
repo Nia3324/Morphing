@@ -206,11 +206,12 @@ class Morph:
                         'morphs_perc': []
                     }
                 
-                # Predict new labels using selected model
-                if model.model_name == 'lstm':
-                    if len(morphing.shape) != 3:  # Ensure it has 3 dimensions (samples, sequence_length, features)
-                        morphing = morphing.reshape(morphing.shape[0], 1, morphing.shape[1])
-                    pred,_ = model.predict(morphing)
+                if model.model_name:
+                    # Predict new labels using selected model
+                    if model.model_name == 'lstm':
+                        if len(morphing.shape) != 3:  # Ensure it has 3 dimensions (samples, sequence_length, features)
+                            morphing = morphing.reshape(morphing.shape[0], 1, morphing.shape[1])
+                        pred,_ = model.predict(morphing)
                 else:
                     pred,_ = model.predict(morphing)
 
