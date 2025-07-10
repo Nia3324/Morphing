@@ -2,7 +2,7 @@
 
 [Antónia Brito](antoniabrito@fe.up.pt), [Moisés Santos](mrsantos@fe.up.pt), [Duarte Folgado](duarte.folgado@aicos.fraunhofer.pt), and [Carlos Soares](csoares@fe.up.pt).
 
-This repositoty contains all the source core, experiments and visual aid regarding the paper `tsMIST: Model Sensitivity Analysis with Time
+This repositoty contains all the source code, experiments and visual aid regarding the paper `tsMIST: Model Sensitivity Analysis with Time
 Series Morphing`. 
 
 `tsMIST` is a novel framework for evaluating robustness in time series classifiers. By introducing robustness metrics based on semantically meaningful perturbations in input data, in other words, smooth interpolations between time series from different classes. This allows for quantifying both the stability and consistency of decision boundaries. 
