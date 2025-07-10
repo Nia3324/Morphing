@@ -67,7 +67,7 @@ git clone https://github.com/Nia3324/Morphing
 [2] Santos, M., de Carvalho, A., Soares, C. (2023). Enhancing Algorithm Performance Understanding through tsMorph: Generating Semi-Synthetic Time Series for Robust Forecasting Evaluation. arXiv preprint arXiv:2312.01344. https://arxiv.org/abs/2312.01344 
 
 
-## Funding information
+## Funding Information
 
 This work is a result of Agenda “Center for Responsible AI”, nr. C645008882-00000055, investment project nr. 62, financed by the Recovery and Resilience Plan (PRR) and by European Union -  NextGeneration EU. Funded by the European Union – NextGenerationEU. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Commission. Neither the European Union nor the European Commission can be held responsible for them. 
 
