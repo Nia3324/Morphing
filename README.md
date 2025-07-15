@@ -2,7 +2,7 @@
 
 [Antónia Brito](https://github.com/Nia3324), [Moisés Santos](https://github.com/moisesrsantos), Duarte Folgado, and Carlos Soares.
 
-This repositoty contains all the source code, experiments and visual aid regarding the paper `tsMIST: Model Sensitivity Analysis with Time
+This repository contains all the source code, experiments and visual aid regarding the paper `tsMIST: Model Sensitivity Analysis with Time
 Series Morphing`. 
 
 `tsMIST` is a novel framework for evaluating robustness in time series classifiers. By introducing robustness metrics based on semantically meaningful perturbations in input data, in other words, smooth interpolations between time series from different classes. This allows for quantifying both the stability and consistency of decision boundaries. 
