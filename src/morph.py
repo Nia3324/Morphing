@@ -2,8 +2,7 @@ import numpy as np
 from aeon.distances import dtw_distance
 from typing import Dict, Tuple
 from numba import njit, prange
-from source.models import Models
-from source.tsmorph import TSmorph
+from src.tsmorph import TSmorph
 from tqdm import tqdm
 
 class Morph:
@@ -115,7 +114,7 @@ class Morph:
         return np.array(morphs)
     
 
-    def CalculateMorph(self,  models: Tuple[Models], granularity:int=100, verbose = False) -> np.ndarray:
+    def CalculateMorph(self,  model, granularity:int=100, verbose = False) -> np.ndarray:
         morphs = []
         results = {}
 
@@ -128,59 +127,50 @@ class Morph:
             m = TSmorph(S=source_c0, T=target_c1, granularity=granularity).transform()
             morphs.append(m)
 
-        for model in models:
-            results[model.model_name] = {}
-            good_morphs = []
-            good_pred = []
-            indices = []
-            percentage = []
+        good_morphs = []
+        good_pred = []
+        indices = []
+        percentage = []
 
-            for morphing in tqdm(morphs):
-                # Predict new labels using selected model
-                if model.model_name == 'lstm':
-                    if len(morphing.shape) != 3:  # Ensure it has 3 dimensions (samples, sequence_length, features)
-                        morphing = morphing.reshape(morphing.shape[0], 1, morphing.shape[1])
-                    pred,_ = model.predict(morphing)
-                else:
-                    pred,_ = model.predict(morphing)
+        for morphing in tqdm(morphs):
+            # predict new labels 
+            if len(morphing.shape) != 3:  # ensure it has 3 dimensions (samples, sequence_length, features)
+                morphing = morphing.reshape(morphing.shape[0], 1, morphing.shape[1])
+            pred,_ = model.predict(morphing)
+           
+            # ensure valid morphing pairs
+            if pred[0] == source_c0_y and pred[-1] == target_c1_y:
+                    
+                # find where label changes
+                change_idx = 1
+                for i in range(1, len(pred)-1):  # account for both original series
+                    if pred[i] != source_c0_y:
+                        change_idx = i
+                        break
 
-                # Ensure valid morphing pairs
-                if pred[0] == source_c0_y and pred[-1] == target_c1_y:
-                        
-                    # Find where label changes
-                    change_idx = 1
-                    for i in range(1, len(pred)-1):  # account for both original series
-                        if pred[i] != source_c0_y:
-                            change_idx = i
-                            break
-
-                    # Calculate morphing percentage 
-                    perc = 1/granularity * change_idx
-                                    
-                    good_morphs.append(morphing)
-                    good_pred.append(round(perc, 2))
-                    indices.append(change_idx)
-                    percentage.append(perc)
+                # calculate morphing percentage 
+                perc = 1/granularity * change_idx
+                                
+                good_morphs.append(morphing)
+                good_pred.append(round(perc, 2))
+                indices.append(change_idx)
+                percentage.append(perc)
           
-         
-            results[model.model_name]['morphs'] = good_morphs
-            results[model.model_name]['model_preds'] = good_pred
-            results[model.model_name]['change_perc'] = percentage 
-            results[model.model_name]['change_indice'] = indices 
+        results['morphs'] = good_morphs
+        results['model_preds'] = good_pred
+        results['change_perc'] = percentage 
+        results['change_indice'] = indices 
                         
-        # Compute metrics for each model
-        for _, model_results in results.items():
-            morphs_perc = model_results['change_perc']
-            model_results['metrics'] = {
-                'mean': float(np.mean(morphs_perc)) if morphs_perc else 0.0,
-                'std': float(np.std(morphs_perc)) if morphs_perc else 0.0
-            }
+        results['metrics'] = {
+            'mean': float(np.mean(results['change_perc'])) if results['change_perc'] else 0.0,
+            'std': float(np.std(results['change_perc'])) if results['change_perc'] else 0.0
+        }
         return results
 
 
     def Binary_MorphingCalculater(
         self, 
-        models: Tuple[Models], 
+        model, 
         granularity: int = 100, 
         verbose: bool = False
     ) -> Dict:
