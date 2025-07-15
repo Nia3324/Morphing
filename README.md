@@ -1,6 +1,6 @@
 # tsMIST: Model Sensitivity Analysis with TimeSeries Morphing 
 
-[Antónia Brito]([antoniabrito@fe.up.pt](https://github.com/Nia3324), [Moisés Santos](https://github.com/moisesrsantos), Duarte Folgado, and Carlos Soares.
+[Antónia Brito](https://github.com/Nia3324), [Moisés Santos](https://github.com/moisesrsantos), Duarte Folgado, and Carlos Soares.
 
 This repositoty contains all the source code, experiments and visual aid regarding the paper `tsMIST: Model Sensitivity Analysis with Time
 Series Morphing`. 
