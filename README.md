@@ -1,8 +1,8 @@
 # tsMIST: Model Sensitivity Analysis with TimeSeries Morphing 
 
-[Antónia Brito](antoniabrito@fe.up.pt), [Moisés Santos](mrsantos@fe.up.pt), [Duarte Folgado](duarte.folgado@aicos.fraunhofer.pt), and [Carlos Soares](csoares@fe.up.pt).
+[Antónia Brito](https://github.com/Nia3324), [Moisés Santos](https://github.com/moisesrsantos), Duarte Folgado, and Carlos Soares.
 
-This repositoty contains all the source code, experiments and visual aid regarding the paper `tsMIST: Model Sensitivity Analysis with Time
+This repository contains all the source code, experiments and visual aid regarding the paper `tsMIST: Model Sensitivity Analysis with Time
 Series Morphing`. 
 
 `tsMIST` is a novel framework for evaluating robustness in time series classifiers. By introducing robustness metrics based on semantically meaningful perturbations in input data, in other words, smooth interpolations between time series from different classes. This allows for quantifying both the stability and consistency of decision boundaries. 
@@ -54,9 +54,13 @@ git clone https://github.com/Nia3324/Morphing
 
 ## License
 
-...
+Copyright (c) 2025 Antónia Brito, Moisés Santos
 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## References
 
