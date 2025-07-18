@@ -52,6 +52,14 @@ You can clone the repo with the command:
 git clone https://github.com/Nia3324/Morphing
 ```
 
+## References
+
+`tsMIST` expands the work of the following papers:
+
+[1] Correia, A., Soares, C., Jorge, A. (2019). Dataset Morphing to Analyze the Performance of Collaborative Filtering. In: Kralj Novak, P., Šmuc, T., Džeroski, S. (eds) Discovery Science. DS 2019. Lecture Notes in Computer Science(), vol 11828. Springer, Cham. https://doi.org/10.1007/978-3-030-33778-0_3
+
+[2] Santos, M., de Carvalho, A., Soares, C. (2023). Enhancing Algorithm Performance Understanding through tsMorph: Generating Semi-Synthetic Time Series for Robust Forecasting Evaluation. arXiv preprint arXiv:2312.01344. https://arxiv.org/abs/2312.01344 
+
 ## License
 
 Copyright (c) 2025 Antónia Brito, Moisés Santos
@@ -61,15 +69,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-## References
-
-`tsMIST` expands the work of the following papers:
-
-[1] Correia, A., Soares, C., Jorge, A. (2019). Dataset Morphing to Analyze the Performance of Collaborative Filtering. In: Kralj Novak, P., Šmuc, T., Džeroski, S. (eds) Discovery Science. DS 2019. Lecture Notes in Computer Science(), vol 11828. Springer, Cham. https://doi.org/10.1007/978-3-030-33778-0_3
-
-[2] Santos, M., de Carvalho, A., Soares, C. (2023). Enhancing Algorithm Performance Understanding through tsMorph: Generating Semi-Synthetic Time Series for Robust Forecasting Evaluation. arXiv preprint arXiv:2312.01344. https://arxiv.org/abs/2312.01344 
-
 
 ## Acknowledgements
 
